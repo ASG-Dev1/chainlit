@@ -1,1 +1,7 @@
+#!/bin/sh
+
+# Make Poetry in .venv available to this script
+export PATH="/Users/carmenodi/Desktop/DesktopFiles/Github/chainlit/.venv/bin:$PATH"
+
+# Run lint-staged using pnpm
 pnpm lint-staged

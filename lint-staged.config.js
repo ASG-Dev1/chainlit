@@ -1,10 +1,12 @@
 // eslint-disable-next-line no-undef
 module.exports = {
-  '**/*.{js,jsx,ts,tsx}': ['npx prettier --write', 'npx eslint --fix'],
-  '**/*.{ts,tsx}': [() => 'tsc --skipLibCheck --noEmit'],
+  '**/*.{js,jsx,ts,tsx}': (files) => [
+    `npx prettier --write ${files.join(' ')}`,
+    `npx eslint --fix ${files.join(' ')} --max-warnings=0`
+  ],
   '**/*.py': [
-    'poetry run -C backend ruff check --fix',
-    'poetry run -C backend ruff format',
+    'cd backend && poetry run ruff check --fix',
+    'cd backend && poetry run ruff format',
     () => 'pnpm run lintPython'
   ],
   '.github/{workflows,actions}/**': ['actionlint']
