@@ -1,10 +1,27 @@
 import chainlit as cl
 from chainlit.config import config
+
+# from chainlit.cosmos_history import save_message, get_user_messages
 from cosmos_history import save_message, get_user_messages
+
+# from cosmos_history import save_message, get_user_messages
 import os
 import uuid
 
+print(f"ENABLE_AUTH: {os.getenv('ENABLE_AUTH')}")
+print(f"TEST_USER_EMAIL: {os.getenv('TEST_USER_EMAIL')}")
+
+
 from openai import AsyncAzureOpenAI
+
+
+# Dev‑only login: "admin" / "admin"
+@cl.password_auth_callback
+def login(username: str, password: str):
+    if username == "admin" and password == "admin":
+        # identifier becomes cl.user_session["identifier"]
+        return cl.User(identifier=username, metadata={"email": "admin@example.com"})
+
 
 client = AsyncAzureOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
@@ -25,6 +42,18 @@ async def start():
     # messages = await get_user_messages(user_id, conversation_id)
     # for msg in messages:
     #     await cl.Message(author=msg["sender"], content=msg["content"]).send()
+
+
+@cl.on_chat_resume
+async def on_resume(thread):
+    user_id = cl.user_session.get("identifier", "anonymous")
+
+    # Get the conversation ID from the resumed thread
+    convo_id = thread["id"]
+    messages = await get_user_messages(user_id, convo_id)
+
+    for msg in messages:
+        await cl.Message(author=msg["sender"], content=msg["content"]).send()
 
 
 @cl.on_message
