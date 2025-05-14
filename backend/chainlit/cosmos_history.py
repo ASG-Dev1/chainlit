@@ -51,3 +51,13 @@ async def get_user_messages(user_id: str, conversation_id: str):
 
     except CosmosResourceNotFoundError:
         return []
+
+
+async def get_user_conversations(user_id: str):
+    query = f"SELECT c.id FROM c WHERE c.messages[0].sender = 'user'"  # SELECT c.id FROM c WHERE c.user_id = '{user_id}'
+
+    results = []
+    async for item in container.query_items(query=query):
+        results.append(item)
+
+    return results
