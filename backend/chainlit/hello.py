@@ -15,12 +15,20 @@ print(f"TEST_USER_EMAIL: {os.getenv('TEST_USER_EMAIL')}")
 from openai import AsyncAzureOpenAI
 
 
-# Dev‑only login: "admin" / "admin"
+# Dev‑only test login: "admin" / "1234"
 @cl.password_auth_callback
 def login(username: str, password: str):
-    if username == "admin" and password == "admin":
-        # identifier becomes cl.user_session["identifier"]
-        return cl.User(identifier=username, metadata={"email": "admin@example.com"})
+    class SimpleUser:
+        def __init__(self, identifier, metadata=None):
+            self.identifier = identifier
+            self.metadata = metadata or {}
+
+        def to_dict(self):
+            return {"identifier": self.identifier, "metadata": self.metadata}
+
+    if username == "admin" and password == "1234":
+        return SimpleUser(identifier=username, metadata={"email": username})
+    return None
 
 
 client = AsyncAzureOpenAI(
